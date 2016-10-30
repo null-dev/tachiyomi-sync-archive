@@ -2,6 +2,7 @@ package eu.kanade.tachiyomi.data.database.queries
 
 import com.pushtorefresh.storio.Queries
 import com.pushtorefresh.storio.sqlite.queries.DeleteQuery
+import com.pushtorefresh.storio.sqlite.queries.Query
 import eu.kanade.tachiyomi.data.database.DbProvider
 import eu.kanade.tachiyomi.data.database.inTransaction
 import eu.kanade.tachiyomi.data.database.models.Manga
@@ -29,4 +30,10 @@ interface MangaCategoryQueries : DbProvider {
         }
     }
 
+    fun getAllMangaCategories() = db.get()
+            .listOfObjects(MangaCategory::class.java)
+            .withQuery(Query.builder()
+                    .table(MangaCategoryTable.TABLE)
+                    .build())
+            .prepare()
 }

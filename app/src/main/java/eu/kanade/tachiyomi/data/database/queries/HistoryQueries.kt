@@ -1,5 +1,7 @@
 package eu.kanade.tachiyomi.data.database.queries
 
+import android.database.Cursor
+import com.pushtorefresh.storio.sqlite.operations.get.DefaultGetResolver
 import com.pushtorefresh.storio.sqlite.queries.RawQuery
 import eu.kanade.tachiyomi.data.database.DbProvider
 import eu.kanade.tachiyomi.data.database.models.History
@@ -7,6 +9,8 @@ import eu.kanade.tachiyomi.data.database.models.MangaChapterHistory
 import eu.kanade.tachiyomi.data.database.resolvers.HistoryLastReadPutResolver
 import eu.kanade.tachiyomi.data.database.resolvers.MangaChapterHistoryGetResolver
 import eu.kanade.tachiyomi.data.database.tables.HistoryTable
+import eu.kanade.tachiyomi.data.database.tables.HistoryTable.COL_ID
+import eu.kanade.tachiyomi.data.database.tables.HistoryTable.TABLE
 import java.util.*
 
 interface HistoryQueries : DbProvider {
@@ -26,7 +30,7 @@ interface HistoryQueries : DbProvider {
             .withQuery(RawQuery.builder()
                     .query(getRecentMangasQuery())
                     .args(date.time)
-                    .observesTables(HistoryTable.TABLE)
+                    .observesTables(TABLE)
                     .build())
             .withGetResolver(MangaChapterHistoryGetResolver.INSTANCE)
             .prepare()
@@ -36,10 +40,20 @@ interface HistoryQueries : DbProvider {
             .withQuery(RawQuery.builder()
                     .query(getHistoryByMangaId())
                     .args(mangaId)
-                    .observesTables(HistoryTable.TABLE)
+                    .observesTables(TABLE)
                     .build())
             .prepare()
 
+    fun getLastHistoryId() = db.get().`object`(Long::class.java)
+            .withQuery(RawQuery.builder()
+                    .query("SELECT $COL_ID FROM $TABLE WHERE $COL_ID = (SELECT MAX($COL_ID) FROM $TABLE)")
+                    .build())
+            .withGetResolver(object: DefaultGetResolver<Long>() {
+                override fun mapFromCursor(cursor: Cursor): Long {
+                    return cursor.getLong(0)
+                }
+            })
+            .prepare()
 
     /**
      * Updates the history last read.

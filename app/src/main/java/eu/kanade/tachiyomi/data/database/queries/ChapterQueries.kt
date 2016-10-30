@@ -23,6 +23,13 @@ interface ChapterQueries : DbProvider {
                     .build())
             .prepare()
 
+    fun getAllChapters() = db.get()
+            .listOfObjects(Chapter::class.java)
+            .withQuery(Query.builder()
+                    .table(ChapterTable.TABLE)
+                    .build())
+            .prepare()
+
     fun getRecentChapters(date: Date) = db.get()
             .listOfObjects(MangaChapter::class.java)
             .withQuery(RawQuery.builder()
