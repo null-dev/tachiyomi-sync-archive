@@ -24,6 +24,10 @@ object ChapterTable {
 
     const val COL_SOURCE_ORDER = "source_order"
 
+    const val COL_LAST_MODIFIED = "chp_last_modified"
+
+    const val TRIGGER_LAST_MODIFIED = "chp_last_modified_trigger"
+
     val createTableQuery: String
         get() = """CREATE TABLE $TABLE(
             $COL_ID INTEGER NOT NULL PRIMARY KEY,
@@ -36,6 +40,7 @@ object ChapterTable {
             $COL_SOURCE_ORDER INTEGER NOT NULL,
             $COL_DATE_FETCH LONG NOT NULL,
             $COL_DATE_UPLOAD LONG NOT NULL,
+            $COL_LAST_MODIFIED LONG NOT NULL DEFAULT (strftime('%s', 'now')*1000),
             FOREIGN KEY($COL_MANGA_ID) REFERENCES ${MangaTable.TABLE} (${MangaTable.COL_ID})
             ON DELETE CASCADE
             )"""
@@ -43,7 +48,15 @@ object ChapterTable {
     val createMangaIdIndexQuery: String
         get() = "CREATE INDEX ${TABLE}_${COL_MANGA_ID}_index ON $TABLE($COL_MANGA_ID)"
 
+    val createLastModifiedTriggerQuery: String
+        get() = """CREATE TRIGGER IF NOT EXISTS $TRIGGER_LAST_MODIFIED
+                AFTER UPDATE ON $TABLE FOR EACH ROW
+            BEGIN
+                UPDATE $TABLE
+                    SET $COL_LAST_MODIFIED = strftime('%s', 'now')*1000
+                    WHERE $COL_ID = old.$COL_ID;
+            END"""
+
     val sourceOrderUpdateQuery: String
         get() = "ALTER TABLE $TABLE ADD COLUMN $COL_SOURCE_ORDER INTEGER DEFAULT 0"
-
 }

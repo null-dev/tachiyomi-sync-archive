@@ -33,6 +33,11 @@ class DbOpenHelper(context: Context)
         execSQL(MangaTable.createFavoriteIndexQuery)
         execSQL(ChapterTable.createMangaIdIndexQuery)
         execSQL(HistoryTable.createChapterIdIndexQuery)
+
+        // DB triggers
+        execSQL(MangaTable.createLastModifiedTriggerQuery)
+        execSQL(ChapterTable.createLastModifiedTriggerQuery)
+        execSQL(CategoryTable.createLastModifiedTriggerQuery)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {

@@ -38,6 +38,10 @@ object MangaTable {
 
     const val COL_CATEGORY = "category"
 
+    const val COL_LAST_MODIFIED = "mng_last_modified"
+
+    const val TRIGGER_LAST_MODIFIED = "mng_last_modified_trigger"
+
     val createTableQuery: String
         get() = """CREATE TABLE $TABLE(
             $COL_ID INTEGER NOT NULL PRIMARY KEY,
@@ -54,7 +58,8 @@ object MangaTable {
             $COL_LAST_UPDATE LONG,
             $COL_INITIALIZED BOOLEAN NOT NULL,
             $COL_VIEWER INTEGER NOT NULL,
-            $COL_CHAPTER_FLAGS INTEGER NOT NULL
+            $COL_CHAPTER_FLAGS INTEGER NOT NULL,
+            $COL_LAST_MODIFIED LONG NOT NULL DEFAULT (strftime('%s', 'now')*1000)
             )"""
 
     val createUrlIndexQuery: String
@@ -62,4 +67,13 @@ object MangaTable {
 
     val createFavoriteIndexQuery: String
         get() = "CREATE INDEX ${TABLE}_${COL_FAVORITE}_index ON $TABLE($COL_FAVORITE)"
+
+    val createLastModifiedTriggerQuery: String
+        get() = """CREATE TRIGGER IF NOT EXISTS $TRIGGER_LAST_MODIFIED
+                AFTER UPDATE ON $TABLE FOR EACH ROW
+            BEGIN
+                UPDATE $TABLE
+                    SET $COL_LAST_MODIFIED = strftime('%s', 'now')*1000
+                    WHERE $COL_ID = old.$COL_ID;
+            END"""
 }

@@ -12,6 +12,8 @@ interface Category : Serializable {
 
     var flags: Int
 
+    var last_modified: Long
+
     val nameLower: String
         get() = name.toLowerCase()
 

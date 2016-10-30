@@ -38,6 +38,8 @@ interface Manga : Serializable {
 
     var category: Int
 
+    var last_modified: Long
+
     fun copyFrom(other: Manga) {
         if (other.author != null)
             author = other.author

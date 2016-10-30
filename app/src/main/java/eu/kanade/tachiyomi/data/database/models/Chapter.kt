@@ -24,6 +24,8 @@ interface Chapter : Serializable {
 
     var source_order: Int
 
+    var last_modified: Long
+
     val isRecognizedNumber: Boolean
         get() = chapter_number >= 0f
 
