@@ -53,7 +53,6 @@ class ChapterPutResolver : DefaultPutResolver<Chapter>() {
         put(COL_LAST_PAGE_READ, obj.last_page_read)
         put(COL_CHAPTER_NUMBER, obj.chapter_number)
         put(COL_SOURCE_ORDER, obj.source_order)
-        put(COL_LAST_MODIFIED, obj.last_modified)
     }
 }
 

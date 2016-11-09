@@ -12,6 +12,10 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE" tools:node="remove" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
 
     <application
         android:name=".App"
@@ -93,6 +97,39 @@
         <meta-data
             android:name="eu.kanade.tachiyomi.data.glide.AppGlideModule"
             android:value="GlideModule" />
+
+        <!-- Sync -->
+
+        <!-- Stub content provider for library sync -->
+        <provider
+            android:name=".data.sync.provider.StubProvider"
+            android:authorities="eu.kanade.tachiyomi.data.sync.provider"
+            android:exported="false"
+            android:syncable="true"/>
+
+        <service android:name=".data.sync.account.SyncAuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/sync_authenticator" />
+        </service>
+
+        <activity
+            android:name=".ui.sync.account.SyncAccountAuthenticatorActivity"
+            android:label="@string/sync_authorize_activity_title">
+        </activity>
+
+        <service
+            android:name=".data.sync.LibrarySyncService"
+            android:exported="true">
+            <!-- TODO Test with multi process (android:process=":sync")-->
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter"/>
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter"
+                android:resource="@xml/sync_adapter" />
+        </service>
 
     </application>
 

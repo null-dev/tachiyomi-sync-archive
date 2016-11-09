@@ -13,6 +13,7 @@ import eu.kanade.tachiyomi.data.database.models.Category
 import eu.kanade.tachiyomi.data.database.models.CategoryImpl
 import eu.kanade.tachiyomi.data.database.tables.CategoryTable.COL_FLAGS
 import eu.kanade.tachiyomi.data.database.tables.CategoryTable.COL_ID
+import eu.kanade.tachiyomi.data.database.tables.CategoryTable.COL_LAST_MODIFIED
 import eu.kanade.tachiyomi.data.database.tables.CategoryTable.COL_NAME
 import eu.kanade.tachiyomi.data.database.tables.CategoryTable.COL_ORDER
 import eu.kanade.tachiyomi.data.database.tables.CategoryTable.TABLE
@@ -50,6 +51,7 @@ class CategoryGetResolver : DefaultGetResolver<Category>() {
         name = cursor.getString(cursor.getColumnIndex(COL_NAME))
         order = cursor.getInt(cursor.getColumnIndex(COL_ORDER))
         flags = cursor.getInt(cursor.getColumnIndex(COL_FLAGS))
+        last_modified = cursor.getLong(cursor.getColumnIndex(COL_LAST_MODIFIED))
     }
 }
 

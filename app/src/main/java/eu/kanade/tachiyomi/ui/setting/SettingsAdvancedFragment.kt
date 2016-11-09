@@ -101,6 +101,7 @@ class SettingsAdvancedFragment : SettingsFragment() {
     }
 
     private fun clearDatabase() {
+        //TODO Disable this when sync is enabled as it can mess sync up
         MaterialDialog.Builder(activity)
                 .content(R.string.clear_database_confirmation)
                 .positiveText(android.R.string.yes)

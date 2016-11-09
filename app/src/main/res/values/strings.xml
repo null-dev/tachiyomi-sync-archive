@@ -345,4 +345,10 @@
     <string name="download_notifier_page_ready_error">A page is not loaded</string>
     <string name="download_notifier_text_only_wifi">No wifi connection available</string>
 
+    <!-- Sync -->
+    <string name="sync_account_label">TachiWeb Server</string>
+    <string name="sync_authorize_activity_title">Add Server</string>
+    <string name="sync_server_url">Server URL</string>
+    <string name="sync_password">Password</string>
+
 </resources>

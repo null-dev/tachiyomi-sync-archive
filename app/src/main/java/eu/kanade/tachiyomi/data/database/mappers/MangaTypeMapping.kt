@@ -26,6 +26,7 @@ import eu.kanade.tachiyomi.data.database.tables.MangaTable.COL_THUMBNAIL_URL
 import eu.kanade.tachiyomi.data.database.tables.MangaTable.COL_TITLE
 import eu.kanade.tachiyomi.data.database.tables.MangaTable.COL_URL
 import eu.kanade.tachiyomi.data.database.tables.MangaTable.COL_VIEWER
+import eu.kanade.tachiyomi.data.database.tables.MangaTable.COL_LAST_MODIFIED
 import eu.kanade.tachiyomi.data.database.tables.MangaTable.TABLE
 
 class MangaTypeMapping : SQLiteTypeMapping<Manga>(
@@ -83,6 +84,7 @@ open class MangaGetResolver : DefaultGetResolver<Manga>() {
         initialized = cursor.getInt(cursor.getColumnIndex(COL_INITIALIZED)) == 1
         viewer = cursor.getInt(cursor.getColumnIndex(COL_VIEWER))
         chapter_flags = cursor.getInt(cursor.getColumnIndex(COL_CHAPTER_FLAGS))
+        last_modified = cursor.getLong(cursor.getColumnIndex(COL_LAST_MODIFIED))
     }
 }
 
