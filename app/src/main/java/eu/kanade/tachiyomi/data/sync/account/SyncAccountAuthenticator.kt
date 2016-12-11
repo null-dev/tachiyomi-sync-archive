@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.text.TextUtils
 import eu.kanade.tachiyomi.data.network.NetworkHelper
 import eu.kanade.tachiyomi.data.sync.api.TWApi
+import eu.kanade.tachiyomi.data.sync.api.TWApi.Companion.apiFromAccount
 import eu.kanade.tachiyomi.ui.sync.account.SyncAccountAuthenticatorActivity
 import uy.kohesive.injekt.injectLazy
 
@@ -45,7 +46,10 @@ class SyncAccountAuthenticator(val context: Context?) : AbstractAccountAuthentic
 
         //No auth token!
         if(TextUtils.isEmpty(authToken)) {
-            val apiResponse = apiFromAccount(account).checkAuth(am.getPassword(account)).toBlocking().first()
+            val apiResponse = apiFromAccount(networkService, account)
+                    .checkAuth(am.getPassword(account))
+                    .toBlocking()
+                    .first()
             if(apiResponse.success) {
                 authToken = apiResponse.token
             }
@@ -88,6 +92,4 @@ class SyncAccountAuthenticator(val context: Context?) : AbstractAccountAuthentic
         bundle.putParcelable(AccountManager.KEY_INTENT, intent)
         return bundle
     }
-
-    fun apiFromAccount(account: Account) = TWApi.create(networkService.client, account.name)
 }

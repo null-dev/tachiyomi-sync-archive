@@ -10,6 +10,7 @@ import eu.kanade.tachiyomi.data.mangasync.MangaSyncManager
 import eu.kanade.tachiyomi.data.network.NetworkHelper
 import eu.kanade.tachiyomi.data.preference.PreferencesHelper
 import eu.kanade.tachiyomi.data.source.SourceManager
+import eu.kanade.tachiyomi.data.sync.LibrarySyncManager
 import uy.kohesive.injekt.api.InjektModule
 import uy.kohesive.injekt.api.InjektRegistrar
 import uy.kohesive.injekt.api.addSingletonFactory
@@ -33,6 +34,8 @@ class AppModule(val app: Application) : InjektModule {
             addSingletonFactory { DownloadManager(app) }
 
             addSingletonFactory { MangaSyncManager(app) }
+
+            addSingletonFactory { LibrarySyncManager(app) }
 
             addSingletonFactory { Gson() }
 

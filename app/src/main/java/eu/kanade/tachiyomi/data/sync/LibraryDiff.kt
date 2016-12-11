@@ -7,11 +7,11 @@ import java.util.*
 
 class LibraryDiff {
     val modifiedCategories = ArrayList<Category>()
-    val removedCategories = ArrayList<Int>()
-    val modifiedChapters = ArrayList<Chapter>()
+    val removedCategories = ArrayList<String>()
+    val modifiedChapters = ArrayList<Pair<MangaReference, Chapter>>()
     val modifiedManga = ArrayList<Manga>()
-    val addedMangaCategoryMappings = ArrayList<Pair<Int, MangaReference>>()
-    val removedMangaCategoryMappings = ArrayList<Pair<Int, MangaReference>>()
+    val addedMangaCategoryMappings = ArrayList<Pair<String, MangaReference>>()
+    val removedMangaCategoryMappings = ArrayList<Pair<String, MangaReference>>()
 
     class MangaReference(val source: Int,
                          val url: String) {

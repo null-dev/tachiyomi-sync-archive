@@ -130,7 +130,7 @@ class BackupManager(private val db: DatabaseHelper) {
      * @param category the category to backup.
      * @return a JSON object containing the data of the category.
      */
-    private fun backupCategory(category: Category): JsonElement {
+    fun backupCategory(category: Category): JsonElement {
         return gson.toJsonTree(category)
     }
 

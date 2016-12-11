@@ -6,5 +6,4 @@ package eu.kanade.tachiyomi.data.sync.api.models
 
 data class AuthResponse(val success: Boolean,
                         val error: String,
-                        val token: String) {
-}
+                        val token: String)
