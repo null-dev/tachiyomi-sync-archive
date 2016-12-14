@@ -7,8 +7,10 @@ import android.content.ContentProviderClient
 import android.content.Context
 import android.content.SyncResult
 import android.os.Bundle
+import com.github.salomonbrys.kotson.get
 import com.google.gson.Gson
 import com.google.gson.JsonElement
+import com.google.gson.JsonParser
 import eu.kanade.tachiyomi.data.backup.BackupManager
 import eu.kanade.tachiyomi.data.database.DatabaseHelper
 import eu.kanade.tachiyomi.data.network.NetworkHelper
@@ -36,6 +38,8 @@ class LibrarySyncAdapter(context: Context) : AbstractThreadedSyncAdapter(context
 
     val accountManager: AccountManager by lazy { AccountManager.get(context) }
 
+    val jsonParser : JsonParser by lazy { JsonParser() }
+
     //TODO Exception handling
     override fun onPerformSync(account: Account?, extras: Bundle?, authority: String?, provider: ContentProviderClient?, syncResult: SyncResult?) {
         //Read library snapshot
@@ -54,7 +58,6 @@ class LibrarySyncAdapter(context: Context) : AbstractThreadedSyncAdapter(context
         }
         val diff = DiffGenerator().generate(snapshot!!)
         val serialized = serializeLibraryDiff(diff).toString()
-        Timber.d("SER: " + serialized)
 
         //Upload diff
         val api = TWApi.apiFromAccount(networkService, account!!)
@@ -81,38 +84,44 @@ class LibrarySyncAdapter(context: Context) : AbstractThreadedSyncAdapter(context
         if(token == null) {
             return //Still no valid token, die
         }
-        //Actually upload diff
-        val result = api.syncDiff(token, serialized).toBlocking().first()
-        Timber.d("RES: " + result)
-        //TODO Process changes and write back to db
 
-        //Write library snapshot to file
-        val newSnapshot = LibrarySnapshot.fromDb(db)
-        try {
-            syncManager.snapshotFile.delete()
-            syncManager.snapshotFile.outputStream().bufferedWriter().use {
-                gson.toJson(newSnapshot, it)
+        //Actually upload diff
+        val result = jsonParser.parse(api.syncDiff(token, serialized).toBlocking().first())
+        if(result["success"].asBoolean) {
+            val newLibrary = jsonParser.parse(result["new_library"].asString)
+
+            db.inTransaction {
+                //Delete old mangas
+                val oldMangas = db.getMangas().executeAsBlocking()
+                if (oldMangas.size > 0) {
+                    db.deleteMangas(oldMangas).executeAsBlocking()
+                    db.deleteOldMangasCategories(oldMangas).executeAsBlocking()
+                }
+                //Delete old categories
+                val oldCategories = db.getCategories().executeAsBlocking()
+                if (oldCategories.size > 0) {
+                    db.deleteCategories(oldCategories).executeAsBlocking()
+                }
+                //Write new library to DB
+                backupManager.restoreFromJson(newLibrary.asJsonObject)
             }
-        } catch(e: IOException) {
-            Timber.e(e, "Failed to save sync state to file!")
+
+            //Write library snapshot to file
+            val newSnapshot = LibrarySnapshot.fromDb(db)
+            try {
+                syncManager.snapshotFile.delete()
+                syncManager.snapshotFile.outputStream().bufferedWriter().use {
+                    gson.toJson(newSnapshot, it)
+                }
+            } catch(e: IOException) {
+                Timber.e(e, "Failed to save sync state to file!")
+            }
+        } else {
+            Timber.e("Server could not process sync request (${result["error"]})!")
         }
     }
 
     fun serializeLibraryDiff(diff: LibraryDiff): JsonElement {
-        /*val jObj = JsonObject()
-
-        val modifiedCategories = JsonArray() + diff.modifiedCategories.map {
-            backupManager.backupCategory(it)
-        }
-        val removedCategories = JsonArray() + diff.removedCategories
-
-        val modifiedChapters = JsonArray() + diff.modifiedChapters.map { gson.toJsonTree(it) }
-        val modifiedManga = JsonArray() + diff.modifiedManga.map { gson.toJsonTree(it) }
-
-        val addedMangaCategories = JsonArray() + diff.addedMangaCategoryMappings.map { gson.toJsonTree(it) }
-        val removedMangaCategories = JsonArray() + diff.removedMangaCategoryMappings.map { gson.toJsonTree(it) }
-
-        jObj.put()*/
         return gson.toJsonTree(diff)
     }
 }
